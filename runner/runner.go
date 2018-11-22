@@ -1,3 +1,7 @@
+// runner.go
+//
+
+// Package runner 处理任务的运行和生命周期
 package runner
 
 import (
@@ -7,6 +11,7 @@ import (
 	"time"
 )
 
+// Runner struct
 type Runner struct {
 	interrupt chan os.Signal
 	complete  chan error
@@ -14,9 +19,13 @@ type Runner struct {
 	tasks     []func(int)
 }
 
-var ErrTimeout = errors.New("received timeout")
-var ErrInterrupt = errors.New("received interrupt")
+// 定义运行的错误对象
+var (
+	ErrTimeout   = errors.New("received timeout")
+	ErrInterrupt = errors.New("received interrupt")
+)
 
+// New 创建Runner对象
 func (r *Runner) New(d time.Duration) *Runner {
 	return &Runner{
 		interrupt: make(chan os.Signal, 1),
@@ -25,11 +34,14 @@ func (r *Runner) New(d time.Duration) *Runner {
 	}
 }
 
-// 将一个任务附加到Runner上
+// Add 将一个任务附加到Runner上
+//	r.tasks = append(r.task, task...)
+//
 func (r *Runner) Add(tasks ...func(int)) {
 	r.tasks = append(r.tasks, tasks...)
 }
 
+// Start 运行添加的任务
 func (r *Runner) Start() error {
 	signal.Notify(r.interrupt, os.Interrupt)
 
